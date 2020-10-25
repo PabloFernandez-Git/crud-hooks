@@ -4,16 +4,18 @@ import shortid from 'shortid';
 
 function App() {
   
-  const [tarea, setTarea] = useState('')
-  const [tareas, setTareas] = useState([])
+  const [tarea, setTarea] = useState('');
+  const [tareas, setTareas] = useState([]);
+  const [modoEdicion, setModoEdicion] = useState(false);
+  const [id, setId] = useState('');
 
   const agregarTarea = e => {
     e.preventDefault()
     if(!tarea.trim()) {
-      console.log('Vacio')
+      console.log('Elemento vacio')
       return
     }
-    console.log(tarea)
+    // console.log(tarea)
 
     setTareas([
       ...tareas,
@@ -28,10 +30,31 @@ function App() {
     setTareas(arrayFiltrado)
   }
 
+  const editar = (item) => {
+    setModoEdicion(true)
+    setTarea(item.nombreTarea)
+    setId(item.id)
+  }
+
+  const editarTarea = e => {
+    e.preventDefault()
+    if(!tarea.trim()) {
+      console.log('Elemento vacio')
+      return
+    }
+
+    const arrayEditado = tareas.map(item => item.id === id ? {id, nombreTarea: tarea} : item )
+    setTareas(arrayEditado)
+    setModoEdicion(false)
+    setTarea('')
+    setId('')
+  }
+
   return (
     <div className="container mt-5">
       <h1 className="text-center">CRUD simple</h1>
       <hr/>
+      
       <div className="row">
         <div className="col-8">
           <h4 className="text-center">Lista de tareas</h4>
@@ -48,6 +71,7 @@ function App() {
                   </button>
                   <button 
                     className="btn btn-warning btn-sm float-right"
+                    onClick={ () => editar(item) }
                   >
                     Editar
                   </button>
@@ -57,9 +81,14 @@ function App() {
 
           </ul>
         </div>
+
         <div className="col-4">
-          <h4 className="text-center">Formulario</h4>
-          <form onSubmit={ agregarTarea }>
+          <h4 className="text-center">
+            {
+              modoEdicion ? 'Editar tarea' : 'Agregar tarea'
+            }
+          </h4>
+          <form onSubmit={ modoEdicion ? editarTarea : agregarTarea }>
             <input 
               type="text" 
               className="form-control mb-2"
@@ -67,7 +96,15 @@ function App() {
               onChange={ e => setTarea(e.target.value) }
               value={tarea}
             />
-            <button className="btn btn-dark btn-block" type="submit">Agregar</button>
+
+            {
+              modoEdicion ? (
+                <button className="btn btn-warning btn-block" type="submit">Editar</button>
+              ) : (
+                <button className="btn btn-dark btn-block" type="submit">Agregar</button>
+              )
+            }
+
           </form>
         </div>
       </div>
